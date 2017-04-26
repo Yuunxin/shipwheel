@@ -4,9 +4,10 @@
             <span class="ship-span">IP地址管理</span>
         </div>
         <div class="ship-line"></div>
-        <el-tabs v-model="nodeId" type="card" @tab-click="changeHandle">
+        <!--<el-tabs v-model="nodeId" type="card" @tab-click="changeHandle">
             <el-tab-pane v-for="menu in menus" :label="menu.name" :name="menu.id"></el-tab-pane>
-        </el-tabs>
+        </el-tabs>-->
+
         <div class="view">
             <div class="ship-btn">
                 <el-button-group>
@@ -15,6 +16,11 @@
                     <el-button @click.native="del"><i class="fa fa-trash" aria-hidden="true"></i></el-button>
                     <el-button @click.native="loadIpAddr(nodeId)"><i class="fa fa-refresh" aria-hidden="true"></i></el-button>
                 </el-button-group>
+                <div class="ship-tags">
+                    <el-tabs v-model="nodeId" type="card" @tab-click="changeHandle">
+                        <el-tab-pane v-for="menu in menus" :label="menu.name" :name="menu.id"></el-tab-pane>
+                    </el-tabs>
+                </div>
             </div>
             <div class="ship-table">
                 <el-table :data="ipAddrList" border tooltip-effect="dark" @selection-change="handleSelectionChange">
@@ -22,7 +28,7 @@
                     <el-table-column prop="id" label="ID" width="100" sortable></el-table-column>
                     <el-table-column prop="ip" label="IP"></el-table-column>
                     <el-table-column prop="mask" label="掩码"></el-table-column>
-                    <el-table-column prop="nic" label="网卡名称"></el-table-column>
+                    <el-table-column prop="nicName" label="网卡名称"></el-table-column>
                 </el-table>
             </div>
             <div class="block ship-page">
@@ -33,28 +39,29 @@
                         :total="page.tatal">
                 </el-pagination>
             </div>
-
-            <!--add and modify-->
-            <el-dialog :title="title" v-model="formVisible" :close-on-click-modal="false" size="tiny">
-                <el-form label-width="100px" :model="ipAddr" :rules="editFormRules" ref="ipAddr">
-                    <el-form-item label="IP" prop="ip">
-                        <el-input v-model="ipAddr.ip" auto-complete="off" placeholder="请输入IP地址"></el-input>
-                    </el-form-item>
-                    <el-form-item label="掩码" prop="mask">
-                        <el-input v-model="ipAddr.mask" auto-complete="off" placeholder="请输入掩码"></el-input>
-                    </el-form-item>
-                    <el-form-item label="网卡选择" :style="{display: selectDisplay}">
-                        <el-select v-model="ipAddr.nicId" placeholder="请选择网卡">
-                            <el-option v-for="nic in  nics" :value="nic.id" :label="nic.name"></el-option>
-                        </el-select>
-                    </el-form-item>
-                </el-form>
-                <div slot="footer" class="dialog-footer">
-                    <el-button @click.native="formVisible = false">取消</el-button>
-                    <el-button type="primary" @click.native="edit">提交</el-button>
-                </div>
-            </el-dialog>
         </div>
+
+
+        <!--add and modify-->
+        <el-dialog :title="editTitle" v-model="formVisible" :close-on-click-modal="false" size="tiny">
+            <el-form label-width="100px" :model="ipAddr" :rules="editFormRules" ref="ipAddr">
+                <el-form-item label="IP" prop="ip">
+                    <el-input v-model="ipAddr.ip" auto-complete="off" placeholder="请输入IP地址"></el-input>
+                </el-form-item>
+                <el-form-item label="掩码" prop="mask">
+                    <el-input v-model="ipAddr.mask" auto-complete="off" placeholder="请输入掩码"></el-input>
+                </el-form-item>
+                <el-form-item label="网卡选择" :style="{display: selectDisplay}">
+                    <el-select v-model="ipAddr.nicId" placeholder="请选择网卡">
+                        <el-option v-for="nic in  nics" :value="nic.id" :label="nic.name"></el-option>
+                    </el-select>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click.native="formVisible = false">取消</el-button>
+                <el-button type="primary" @click.native="edit">提交</el-button>
+            </div>
+        </el-dialog>
     </div>
 </template>
 <script>
@@ -83,7 +90,7 @@
             };
             return {
                 ipAddrList: [
-                    {id: 1, ip: '163.0.0.1', mask: '255.255.255.0', nic: 'eth0'}
+                    {id: 1, ip: '163.0.0.1', mask: '255.255.255.0', nicName: 'eth0'}
                 ],
                 menus: [
                     {id: '1', name: '内端机'},
@@ -95,7 +102,7 @@
                     pageSize: 15
                 },
 
-                title: '',
+                editTitle: '',
                 formVisible: false,
                 editFormRules: {
                     ip: [{validator: checkIp, trigger: 'blur'}],
@@ -112,7 +119,7 @@
                     {id: 2, name: 'eth1'}
                 ],
                 selection: [],
-                selectDisplay: 'none'
+                selectDisplay: 'none',
             }
         },
         methods: {
@@ -137,7 +144,7 @@
             initAdd: function () {
                 let self = this;
                 self.formVisible = true;
-                self.title = '新增';
+                self.editTitle = '新增';
                 self.ipAddr.id = undefined;
                 self.selectDisplay = 'block';
                 self.$refs.ipAddr.resetFields();
@@ -145,11 +152,12 @@
             initMod: function () {
                 let self = this;
                 if (self.selection.length !== 1) {
-                    self.$notify.error({ message: '请选择一条内容修改', offset: 100, duration: 2000});
+                    //self.$notify.error({message: '请选择一条内容修改', offset: 100, duration: 2000});
+                    util.dialog.notifyError(self, "请选择一条内容修改");
                     return false;
                 }
                 self.formVisible = true;
-                self.title = '修改';
+                self.editTitle = '修改';
                 self.selectDisplay = 'none';
                 self.ipAddr.id = 1;
             },
@@ -178,9 +186,9 @@
                 })
             },
             del: function () {
-                let  self = this;
+                let self = this;
                 if (self.selection.length === 0) {
-                    self.$notify.error({message: '至少选择一条内容删除', offset: 100, duration: 2000});
+                    util.dialog.notifyError(self, "至少选择一条内容删除");
                     return false;
                 }
                 self.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
@@ -190,10 +198,10 @@
                 }).then(() => {
                     _.forEach(self.selection, function (s) {
                         console.log(s);
-                        self.$notify.success({message: '删除成功', offset: 100, duration: 2000});
+                        util.dialog.notifySuccess(self, '删除成功');
                     })
                 }).catch(() => {
-                    self.$notify.info({message: '已取消删除', offset: 100, duration: 2000});
+                    util.dialog.notifyInfo(self, '已取消删除');
                 });
 
             }
@@ -209,5 +217,15 @@
 <style>
     .el-select {
         display: block;
+    }
+
+    .ship-left {
+        width: 20%;
+        float: left;
+    }
+
+    .ship-right {
+        width: 80%;
+        float: right;
     }
 </style>
