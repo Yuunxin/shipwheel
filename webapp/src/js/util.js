@@ -12,5 +12,29 @@ export default {
         IPANDMASK: /^(?:(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\/([0-9]{1,32})$/,
         ISFILETYPE: /^[A-Za-z0-9]+$/,
         PASSWORD: /^(?![^a-zA-Z]+$)(?!\D+$).{8,20}$/
+    },
+
+    dialog: {
+        notifyError: function (self, msg) {
+            self.$notify.error({
+                message: msg,
+                offset: 100,
+                duration: 5000
+            })
+        },
+        notifySuccess: function (self, msg) {
+            self.$notify.success({
+                message: msg,
+                offset: 100,
+                duration: 2000
+            })
+        },
+        notifyInfo: function (self, msg) {
+            self.$notify.info({
+                message: msg,
+                offset: 100,
+                duration: 2000
+            })
+        }
     }
 }
