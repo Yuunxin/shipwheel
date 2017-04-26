@@ -19,7 +19,7 @@ let routes = [
         children: [
             {path: '/dashboard', component: Dashboard, name: '首页',}
         ]
-    }, {
+    },/* {
         path: '/',
         component: Home,
         leaf: true,
@@ -27,7 +27,7 @@ let routes = [
         children: [
             {path: '/user', component: User, name: '用户管理',}
         ]
-    }, {
+    },*/ {
         path: '/',
         component: Home,
         name: '网络管理',
