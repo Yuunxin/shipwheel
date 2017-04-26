@@ -102,3 +102,28 @@
 .ship-pointer {
     cursor: pointer;
 }
+
+.ship-tags {
+    float: right;
+}
+
+.ship-panel-left {
+    float: left;
+    width: 25%;
+}
+
+.ship-panel-center {
+    float: left;
+    width: 50%;
+    border: solid 1px #e5e8ed;
+    padding: 30px;
+}
+
+.ship-panel-right {
+    width: 25%;
+    float: right;
+}
+
+.ship-form {
+    margin-top: 30px;
+}
