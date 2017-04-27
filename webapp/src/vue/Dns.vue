@@ -41,7 +41,7 @@
     export default {
         data () {
             let checkDns = (rule, value, callback) => {
-                if (value === '')
+                if (!value)
                     callback(new Error("请输入dns"));
                 else if (!util.PATTERN.IP.test(value))
                     callback(new Error("dns不合法"));

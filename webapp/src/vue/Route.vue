@@ -73,7 +73,7 @@
     export default {
         data () {
             let checkSubnet = (rule, value, callback) => {
-                if (value === '')
+                if (!value)
                     callback(new Error("请输入目的子网"));
                 else if (!util.PATTERN.IP.test(value))
                     callback(new Error("目的子网不合法"));
@@ -81,7 +81,7 @@
                     callback();
             };
             let checkMask = (rule, value, callback) => {
-                if (value === '')
+                if (!value)
                     callback(new Error("请输入子网掩码"));
                 else if (!util.PATTERN.MASK.test(value))
                     callback(new Error("子网掩码不合法"));
@@ -89,7 +89,7 @@
                     callback();
             };
             let checkGateway = (rule, value, callback) => {
-                if (value === '')
+                if (!value)
                     callback(new Error("请输入网关"));
                 else if (!util.PATTERN.IP.test(value))
                     callback(new Error("网关不合法"));
@@ -201,7 +201,7 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    _.forEach(self.selection, function (s) {
+                    _.forEach(self.selection, (s) => {
                         console.log(s);
                         util.dialog.notifySuccess(self, '删除成功');
                     })

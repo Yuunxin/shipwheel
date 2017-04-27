@@ -56,7 +56,7 @@
     export default {
         data () {
             let checkNewPwd = (rule, value, callback) => {
-                if (value === '') {
+                if (!value) {
                     callback(new Error('请输入新密码'));
                 } else if (!util.PATTERN.PASSWORD.test(value)) {
                     callback(new Error('密码长度最少为8位的数字加字母组成'));
@@ -65,7 +65,7 @@
                 }
             };
             let checkNextPwd = (rule, value, callback) => {
-                if (value === '') {
+                if (!value) {
                     callback(new Error('请输入确认密码'));
                 } else if (value !== this.user.new_pwd) {
                     callback(new Error('两次密码输入不一致'));

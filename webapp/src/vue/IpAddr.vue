@@ -71,7 +71,7 @@
     export default {
         data () {
             let checkIp = (rule, value, callback) => {
-                if (value === '') {
+                if (!value) {
                     callback(new Error('IP不能为空'));
                 } else if (!util.PATTERN.IP.test(value)) {
                     callback(new Error('IP不合法'));
@@ -80,7 +80,7 @@
                 }
             };
             let checkMask = (rule, value, callback) => {
-                if (value === '') {
+                if (!value) {
                     callback(new Error('掩码不能为空'));
                 } else if (!util.PATTERN.MASK.test(value)) {
                     callback(new Error('掩码不合法'));
@@ -196,7 +196,7 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    _.forEach(self.selection, function (s) {
+                    _.forEach(self.selection, (s) => {
                         console.log(s);
                         util.dialog.notifySuccess(self, '删除成功');
                     })

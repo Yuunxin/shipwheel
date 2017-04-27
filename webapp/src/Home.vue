@@ -119,7 +119,7 @@
                 let self = this;
                 self.formVisible = true;
                 self.title = '密码修改';
-                axios.get('api/user').then(function (res) {
+                axios.get('api/user').then((res) => {
                     self.user.name = res.data.name;
                 });
                 self.$refs.user.resetFields();
