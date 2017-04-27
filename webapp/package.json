@@ -13,7 +13,8 @@
     "vue-router": "^2.4.0",
     "font-awesome": "^4.7.0",
     "lodash": "^4.15.0",
-    "axios": "^0.16.1"
+    "axios": "^0.16.1",
+    "bootstrap": "^3.3.7"
   },
   "engines": {
     "node": ">=6"
@@ -39,6 +40,7 @@
     "vue-template-compiler": "^2.1.8",
     "webpack": "^2.2.0-rc.4",
     "webpack-dev-server": "beta",
-    "jquery": "^2.2.4"
+    "jquery": "^2.2.4",
+    "bootstrap": "^3.3.7"
   }
 }
