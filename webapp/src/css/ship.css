@@ -116,7 +116,9 @@
     float: left;
     width: 50%;
     border: solid 1px #e5e8ed;
-    padding: 30px;
+    /*padding: 30px;*/
+    padding-left: 30px;
+    padding-right: 30px;
 }
 
 .ship-panel-right {
@@ -126,4 +128,10 @@
 
 .ship-form {
     margin-top: 30px;
+}
+
+.ship-sys-line {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-bottom: solid 1px #e5e8ed;
 }
