@@ -14,11 +14,13 @@
                     <el-button @click.native="initAdd"><i class="fa fa-plus" aria-hidden="true"></i></el-button>
                     <el-button @click.native="initMod"><i class="fa fa-pencil" aria-hidden="true"></i></el-button>
                     <el-button @click.native="del"><i class="fa fa-trash" aria-hidden="true"></i></el-button>
-                    <el-button @click.native="loadRoute(nodeId)"><i class="fa fa-refresh" aria-hidden="true"></i></el-button>
+                    <el-button @click.native="loadRoute(nodeId,1)"><i class="fa fa-refresh" aria-hidden="true"></i>
+                    </el-button>
                 </el-button-group>
                 <div class="ship-tags">
                     <el-tabs v-model="nodeId" type="card" @tab-click="changeHandle">
-                        <el-tab-pane v-for="menu in menus" :label="menu.name" :name="menu.id"></el-tab-pane>
+                        <el-tab-pane v-for="menu in menus" :label="menu.name" :name="menu.id"
+                                     :key="menu.id"></el-tab-pane>
                     </el-tabs>
                 </div>
             </div>
@@ -36,8 +38,8 @@
                 <el-pagination
                         @current-change="handleCurrentChange"
                         :current-page="page.curPage"
-                        :page-size="page.pageSize"
-                        :total="page.tatal">
+                        :page-size="page.limit"
+                        :total="page.total">
                 </el-pagination>
             </div>
         </div>
@@ -52,8 +54,8 @@
                         <el-input v-model="route.mask" auto-complete="off" placeholder="请输入子网掩码"></el-input>
                     </el-form-item>
                     <el-form-item label="网卡选择">
-                        <el-select v-model="route.nicId" placeholder="请选择网卡">
-                            <el-option v-for="nic in  nics" :value="nic.id" :label="nic.name"></el-option>
+                        <el-select v-model="route.nic_id" placeholder="请选择网卡">
+                            <el-option v-for="nic in  nics" :value="nic.id" :label="nic.name" :key="nic.id"></el-option>
                         </el-select>
                     </el-form-item>
                 </div>
@@ -70,6 +72,7 @@
 </template>
 <script>
     import util from '../js/util';
+    import axios from 'axios';
     export default {
         data () {
             let checkSubnet = (rule, value, callback) => {
@@ -105,8 +108,8 @@
                 ],
                 page: {
                     curPage: 1,
-                    tatal: 0,
-                    pageSize: 15
+                    total: 0,
+                    limit: 15
                 },
                 nodeId: '1',
                 editTitle: '',
@@ -114,13 +117,10 @@
                     subnet: '',
                     mask: '',
                     gateway: '',
-                    nicId: 1
+                    nic_id: 1
                 },
                 formVisible: false,
-                nics:[
-                    {id: 1, name: 'eth0', nodeId: 1},
-                    {id: 2, name: 'eth1', nodeId: 1}
-                ],
+                nics: [],
                 editFormRules: {
                     subnet: [{validator: checkSubnet, trigger: 'blur'}],
                     mask: [{validator: checkMask, trigger: 'blur'}],
@@ -131,13 +131,33 @@
             }
         },
         methods: {
-            loadRoute: function (nodeId) {
-
+            loadRoute: function (nodeId, page) {
+                let self = this;
+                let data = {
+                    page: page,
+                    limit: self.page.limit
+                };
+                axios.post('/ship/node/routeList?nodeId=' + nodeId, data).then((res) => {
+                    self.page.curPage = res.data.curPage;
+                    self.page.total = res.data.total;
+                    self.routeList = res.data.data;
+                }).catch((err) => {
+                    util.dialog.notifyError(self, '加载失败');
+                })
+            },
+            loadNics: function (nodeId) {
+                let self = this;
+                axios.get('/ship/node/nic?nodeId=' + nodeId).then((res) => {
+                    self.nics = res.data;
+                    self.route.nic_id = self.nics[0].id;
+                });
             },
             //选择内外端
             changeHandle: function (tab, event) {
                 let self = this;
                 self.nodeId = tab.name;
+                self.loadRoute(self.nodeId, 1);
+                self.loadNics(self.nodeId);
             },
             //获取选择
             handleSelectionChange: function (val) {
@@ -145,7 +165,7 @@
             },
             //跳转页
             handleCurrentChange: function (val) {
-
+                this.loadRoute(this.nodeId, val);
             },
             initAdd: function () {
                 let self = this;
@@ -158,10 +178,12 @@
             initMod: function () {
                 let self = this;
                 if (self.selection.length !== 1) {
-                    //self.$notify.error({message: '', offset: 100, duration: 2000});
                     util.dialog.notifyError(self, '请选择一条内容修改');
                     return false;
                 }
+                axios.get('/ship/node/route?id=' + self.selection[0].id).then((res) => {
+                    self.route = res.data;
+                });
                 self.formVisible = true;
                 self.editTitle = '修改';
                 self.showMod = 'none';
@@ -178,7 +200,14 @@
                 let self = this;
                 self.$refs.route.validate((valid) => {
                     if (valid) {
-                        console.log(self.ipAddr)
+                        self.route.node_id = self.nodeId;
+                        axios.post('/ship/node/route', self.route).then((res) => {
+                            util.dialog.notifySuccess(self, '添加成功');
+                            self.formVisible = false;
+                            self.loadRoute(self.nodeId, self.page.curPage);
+                        }).catch((err) => {
+                            util.dialog.notifyError(self, '添加失败');
+                        })
                     }
                 })
             },
@@ -186,7 +215,13 @@
                 let self = this;
                 self.$refs.route.validate((valid) => {
                     if (valid) {
-
+                        axios.put('/ship/node/route', self.route).then((res) => {
+                            util.dialog.notifySuccess(self, '修改成功');
+                            self.formVisible = false;
+                            self.loadRoute(self.nodeId, self.page.curPage);
+                        }).catch((err) => {
+                            util.dialog.notifyError(self, '修改失败');
+                        })
                     }
                 })
             },
@@ -202,8 +237,13 @@
                     type: 'warning'
                 }).then(() => {
                     _.forEach(self.selection, (s) => {
-                        console.log(s);
-                        util.dialog.notifySuccess(self, '删除成功');
+                        axios.delete('/ship/node/route?id=' + s.id).then((res) => {
+                            util.dialog.notifySuccess(self, '删除成功');
+                            self.loadRoute(self.nodeId, self.page.curPage);
+                        }).catch((err) => {
+                            util.dialog.notifyError(self, '删除失败');
+                            self.loadRoute(self.nodeId, self.page.curPage);
+                        });
                     })
                 }).catch(() => {
                     util.dialog.notifyInfo(self, '已取消删除');
@@ -214,7 +254,8 @@
         mounted: function () {
             let self = this;
             self.$nextTick(function () {
-                self.page.tatal = self.routeList.length;
+                self.loadRoute(1, 1);
+                self.loadNics(1);
             })
         },
     }
