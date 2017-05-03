@@ -35,7 +35,7 @@ let routes = [
         children: [
             {path: '/ipAddr', component: IpAddr, name: 'IP地址管理', icon: 'fa-star-o'},
             {path: '/route', component: Route, name: '路由管理', icon: 'fa-star-o'},
-            {path: '/dns', component: Dns, name: 'dns配置', icon: 'fa-star-o'},
+            /*{path: '/dns', component: Dns, name: 'dns配置', icon: 'fa-star-o'},*/
         ]
     }, {
         path: '/',
