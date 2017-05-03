@@ -72,6 +72,7 @@
 </template>
 <script>
     import axios from 'axios';
+    import crypto_js from 'crypto-js';
     import util from './js/util';
     export default {
         data () {
@@ -119,7 +120,8 @@
                 let self = this;
                 self.formVisible = true;
                 self.title = '密码修改';
-                axios.get('api/user').then((res) => {
+                axios.get('/ship/user?name=admin').then((res) => {
+                    console.log(res.data);
                     self.user.name = res.data.name;
                 });
                 self.$refs.user.resetFields();
@@ -128,7 +130,17 @@
                 let self = this;
                 self.$refs.user.validate((valid) => {
                     if (valid) {
-
+                        let data = {
+                            name: self.user.name,
+                            old_pwd: crypto_js.SHA256(self.user.old_pwd).toString(crypto_js.enc.Hex),
+                            new_pwd: crypto_js.SHA256(self.user.new_pwd).toString(crypto_js.enc.Hex)
+                        };
+                        axios.put('/ship/user', data).then((res) => {
+                            util.dialog.notifySuccess(self, '修改成功');
+                            self.formVisible = false;
+                        }).catch((err) => {
+                            util.dialog.notifyError(self, '修改失败');
+                        })
                     }
                 })
             },
