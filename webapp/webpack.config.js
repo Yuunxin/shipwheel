@@ -79,11 +79,11 @@ module.exports = (options = {}) => ({
     host: '127.0.0.1',
     port: 8010,
     proxy: {
-      '/api/': {
+      '/ship/': {
         target: 'http://127.0.0.1:8080',
         changeOrigin: true,
         pathRewrite: {
-          '^/api': ''
+          '^/ship': '/ship'
         }
       }
     },
