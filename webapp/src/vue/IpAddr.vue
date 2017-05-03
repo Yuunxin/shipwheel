@@ -14,11 +14,11 @@
                     <el-button @click.native="initAdd"><i class="fa fa-plus" aria-hidden="true"></i></el-button>
                     <el-button @click.native="initMod"><i class="fa fa-pencil" aria-hidden="true"></i></el-button>
                     <el-button @click.native="del"><i class="fa fa-trash" aria-hidden="true"></i></el-button>
-                    <el-button @click.native="loadIpAddr(nodeId)"><i class="fa fa-refresh" aria-hidden="true"></i></el-button>
+                    <el-button @click.native="loadIpAddr(nodeId, 1)"><i class="fa fa-refresh" aria-hidden="true"></i></el-button>
                 </el-button-group>
                 <div class="ship-tags">
                     <el-tabs v-model="nodeId" type="card" @tab-click="changeHandle">
-                        <el-tab-pane v-for="menu in menus" :label="menu.name" :name="menu.id"></el-tab-pane>
+                        <el-tab-pane v-for="menu in menus" :key="menu.id" :label="menu.name" :name="menu.id"></el-tab-pane>
                     </el-tabs>
                 </div>
             </div>
@@ -35,8 +35,8 @@
                 <el-pagination
                         @current-change="handleCurrentChange"
                         :current-page="page.curPage"
-                        :page-size="page.pageSize"
-                        :total="page.tatal">
+                        :page-size="page.limit"
+                        :total="page.total">
                 </el-pagination>
             </div>
         </div>
@@ -52,8 +52,8 @@
                     <el-input v-model="ipAddr.mask" auto-complete="off" placeholder="请输入掩码"></el-input>
                 </el-form-item>
                 <el-form-item label="网卡选择" :style="{display: selectDisplay}">
-                    <el-select v-model="ipAddr.nicId" placeholder="请选择网卡">
-                        <el-option v-for="nic in  nics" :value="nic.id" :label="nic.name"></el-option>
+                    <el-select class="select" v-model="ipAddr.nic_id" placeholder="请选择网卡">
+                        <el-option v-for="nic in nics" :key="nic.id" :value="nic.id" :label="nic.name"></el-option>
                     </el-select>
                 </el-form-item>
             </el-form>
@@ -89,17 +89,15 @@
                 }
             };
             return {
-                ipAddrList: [
-                    {id: 1, ip: '163.0.0.1', mask: '255.255.255.0', nicName: 'eth0'}
-                ],
+                ipAddrList: [],
                 menus: [
                     {id: '1', name: '内端机'},
                     {id: '2', name: '外端机'}
                 ],
                 page: {
                     curPage: 1,
-                    tatal: 0,
-                    pageSize: 15
+                    total: 0,
+                    limit: 15
                 },
 
                 editTitle: '',
@@ -108,30 +106,47 @@
                     ip: [{validator: checkIp, trigger: 'blur'}],
                     mask: [{validator: checkMask, trigger: 'blur'}]
                 },
+                nics: [],
                 ipAddr: {
                     ip: '',
                     mask: '',
-                    nicId: 1
+                    nic_id: 1
                 },
                 nodeId: '1',
-                nics: [
-                    {id: 1, name: 'eth0'},
-                    {id: 2, name: 'eth1'}
-                ],
                 selection: [],
                 selectDisplay: 'none',
             }
         },
         methods: {
             //获取网卡IP
-            loadIpAddr: function (nodeId) {
+            loadIpAddr: function (nodeId, page) {
+                let self = this;
+                let data = {
+                    page: page,
+                    limit: self.page.limit
+                };
+                axios.post('/ship/node/ipAddrList?nodeId=' + nodeId, data).then((res) => {
+                    self.page.curPage = res.data.curPage;
+                    self.page.total = res.data.total;
+                    self.ipAddrList = res.data.data;
+                }).catch((err) => {
+                    util.dialog.notifyError(self, "数据加载失败");
+                })
 
+            },
+            loadNics: function (nodeId) {
+                let self = this;
+                axios.get('/ship/node/nic?nodeId=' + nodeId).then((res) => {
+                    self.nics = res.data;
+                    self.ipAddr.nic_id = self.nics[0].id;
+                });
             },
             //选择内外端
             changeHandle: function (tab, event) {
                 let self = this;
                 self.nodeId = tab.name;
-                self.loadIpAddr(self.nodeId);
+                self.loadIpAddr(self.nodeId, 1);
+                self.loadNics(self.nodeId);
             },
             //获取选择
             handleSelectionChange: function (val) {
@@ -139,7 +154,7 @@
             },
             //跳转页
             handleCurrentChange: function (val) {
-
+                this.loadIpAddr(this.nodeId, val);
             },
             initAdd: function () {
                 let self = this;
@@ -152,14 +167,15 @@
             initMod: function () {
                 let self = this;
                 if (self.selection.length !== 1) {
-                    //self.$notify.error({message: '请选择一条内容修改', offset: 100, duration: 2000});
                     util.dialog.notifyError(self, "请选择一条内容修改");
                     return false;
                 }
+                axios.get('/ship/node/ipAddr?id=' + self.selection[0].id).then((res) => {
+                    self.ipAddr = res.data;
+                });
                 self.formVisible = true;
                 self.editTitle = '修改';
                 self.selectDisplay = 'none';
-                self.ipAddr.id = 1;
             },
             edit: function () {
                 let self = this;
@@ -173,7 +189,14 @@
                 let self = this;
                 self.$refs.ipAddr.validate((valid) => {
                     if (valid) {
-                        console.log(self.ipAddr)
+                        self.ipAddr.node_id = self.nodeId;
+                        axios.post('/ship/node/ipAddr', self.ipAddr).then((res) => {
+                            util.dialog.notifySuccess(self, '添加成功');
+                            self.formVisible = false;
+                            self.loadIpAddr(self.nodeId, self.page.curPage);
+                        }).catch((err) => {
+                            util.dialog.notifyError(self, '添加失败');
+                        })
                     }
                 })
             },
@@ -181,7 +204,13 @@
                 let self = this;
                 self.$refs.ipAddr.validate((valid) => {
                     if (valid) {
-
+                        axios.put('/ship/node/ipAddr', self.ipAddr).then((res) => {
+                            util.dialog.notifySuccess(self, '修改成功');
+                            self.formVisible = false;
+                            self.loadIpAddr(self.nodeId, self.page.curPage);
+                        }).catch((err) => {
+                            util.dialog.notifyError(self, '修改失败');
+                        })
                     }
                 })
             },
@@ -197,8 +226,13 @@
                     type: 'warning'
                 }).then(() => {
                     _.forEach(self.selection, (s) => {
-                        console.log(s);
-                        util.dialog.notifySuccess(self, '删除成功');
+                        axios.delete('/ship/node/ipAddr?id=' + s.id).then((res) => {
+                            util.dialog.notifySuccess(self, '删除成功');
+                            self.loadIpAddr(self.nodeId, self.page.curPage);
+                        }).catch((err) => {
+                            util.dialog.notifyError(self, '删除失败');
+                            self.loadIpAddr(self.nodeId, self.page.curPage);
+                        });
                     })
                 }).catch(() => {
                     util.dialog.notifyInfo(self, '已取消删除');
@@ -209,7 +243,8 @@
         mounted: function () {
             let self = this;
             self.$nextTick(function () {
-                self.page.tatal = self.ipAddrList.length;
+                self.loadIpAddr(1, 1);
+                self.loadNics(1);
             })
         },
     }
