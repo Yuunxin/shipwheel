@@ -8,6 +8,7 @@ import routes from './routes'
 import './css/ship.css'
 Vue.use(ElementUI);
 Vue.use(VueRouter);
+require("babel-polyfill");
 
 
 const router = new VueRouter({routes});

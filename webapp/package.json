@@ -15,7 +15,8 @@
     "lodash": "^4.15.0",
     "axios": "^0.16.1",
     "bootstrap": "^3.3.7",
-    "crypto-js": "^3.1.8"
+    "crypto-js": "^3.1.8",
+    "babel-polyfill": "^7.0.0-alpha.7"
   },
   "engines": {
     "node": ">=6"
