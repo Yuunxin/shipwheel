@@ -19,7 +19,7 @@
                     <el-col>
                         <el-menu :default-active="$route.path" class="el-menu-vertical-demo" theme="dark"
                                  :uniqueOpened="true" :router="true">
-                            <template v-for="(item, index) in $router.options.routes">
+                            <template v-for="(item, index) in $router.options.routes" v-if="!item.hidden">
                                 <el-submenu :index="index + ''" v-if="!item.leaf">
                                     <template slot="title">
                                         <i :class="['fa', item.icon]"></i>
@@ -145,7 +145,7 @@
                 })
             },
             logout: function () {
-                
+                this.$router.push({path: '/login'})
             }
         }
     }

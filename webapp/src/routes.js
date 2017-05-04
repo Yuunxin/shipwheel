@@ -1,6 +1,7 @@
 /**
  * Created by wx on 2017/4/22.
  */
+import Login from './login.vue'
 import Dashboard from "./vue/Dashboard.vue";
 import Home from "./Home.vue";
 import User from "./vue/User.vue";
@@ -12,6 +13,11 @@ import System from './vue/System.vue';
 
 let routes = [
     {
+        path: '/login',
+        component: Login,
+        name: '',
+        hidden: true
+    }, {
         path: '/',
         component: Home,
         icon: 'fa-home',
