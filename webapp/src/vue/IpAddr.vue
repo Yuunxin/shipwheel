@@ -28,7 +28,7 @@
                     <el-table-column prop="id" label="ID" width="100" sortable></el-table-column>
                     <el-table-column prop="ip" label="IP"></el-table-column>
                     <el-table-column prop="mask" label="掩码"></el-table-column>
-                    <el-table-column prop="nicName" label="网卡名称"></el-table-column>
+                    <el-table-column prop="ifaceName" label="网卡名称"></el-table-column>
                 </el-table>
             </div>
             <div class="block ship-page">
@@ -52,8 +52,8 @@
                     <el-input v-model="ipAddr.mask" auto-complete="off" placeholder="请输入掩码"></el-input>
                 </el-form-item>
                 <el-form-item label="网卡选择" :style="{display: selectDisplay}">
-                    <el-select class="select" v-model="ipAddr.nic_id" placeholder="请选择网卡">
-                        <el-option v-for="nic in nics" :key="nic.id" :value="nic.id" :label="nic.name"></el-option>
+                    <el-select class="select" v-model="ipAddr.iface_id" placeholder="请选择网卡">
+                        <el-option v-for="iface in ifaces" :key="iface.id" :value="iface.id" :label="iface.name"></el-option>
                     </el-select>
                 </el-form-item>
             </el-form>
@@ -106,11 +106,11 @@
                     ip: [{validator: checkIp, trigger: 'blur'}],
                     mask: [{validator: checkMask, trigger: 'blur'}]
                 },
-                nics: [],
+                ifaces: [],
                 ipAddr: {
                     ip: '',
                     mask: '',
-                    nic_id: 1
+                    iface_id: 1
                 },
                 nodeId: '1',
                 selection: [],
@@ -134,11 +134,11 @@
                 })
 
             },
-            loadNics: function (nodeId) {
+            loadIfaces: function (nodeId) {
                 let self = this;
-                axios.get('/ship/node/nic?nodeId=' + nodeId).then((res) => {
-                    self.nics = res.data;
-                    self.ipAddr.nic_id = self.nics[0].id;
+                axios.get('/ship/node/iface?nodeId=' + nodeId).then((res) => {
+                    self.ifaces = res.data;
+                    self.ipAddr.iface_id = self.ifaces[0].id;
                 });
             },
             //选择内外端
@@ -146,7 +146,7 @@
                 let self = this;
                 self.nodeId = tab.name;
                 self.loadIpAddr(self.nodeId, 1);
-                self.loadNics(self.nodeId);
+                self.loadifaces(self.nodeId);
             },
             //获取选择
             handleSelectionChange: function (val) {
@@ -244,7 +244,7 @@
             let self = this;
             self.$nextTick(function () {
                 self.loadIpAddr(1, 1);
-                self.loadNics(1);
+                self.loadIfaces(1);
             })
         },
     }

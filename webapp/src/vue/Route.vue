@@ -31,7 +31,7 @@
                     <el-table-column prop="subnet" label="目的子网"></el-table-column>
                     <el-table-column prop="mask" label="子网掩码"></el-table-column>
                     <el-table-column prop="gateway" label="网关"></el-table-column>
-                    <el-table-column prop="nicName" label="网卡名称"></el-table-column>
+                    <el-table-column prop="ifaceName" label="网卡名称"></el-table-column>
                 </el-table>
             </div>
             <div class="block ship-page">
@@ -54,8 +54,8 @@
                         <el-input v-model="route.mask" auto-complete="off" placeholder="请输入子网掩码"></el-input>
                     </el-form-item>
                     <el-form-item label="网卡选择">
-                        <el-select v-model="route.nic_id" placeholder="请选择网卡">
-                            <el-option v-for="nic in  nics" :value="nic.id" :label="nic.name" :key="nic.id"></el-option>
+                        <el-select v-model="route.iface_id" placeholder="请选择网卡">
+                            <el-option v-for="iface in  ifaces" :value="iface.id" :label="iface.name" :key="iface.id"></el-option>
                         </el-select>
                     </el-form-item>
                 </div>
@@ -117,10 +117,10 @@
                     subnet: '',
                     mask: '',
                     gateway: '',
-                    nic_id: 1
+                    iface_id: 1
                 },
                 formVisible: false,
-                nics: [],
+                ifaces: [],
                 editFormRules: {
                     subnet: [{validator: checkSubnet, trigger: 'blur'}],
                     mask: [{validator: checkMask, trigger: 'blur'}],
@@ -145,11 +145,11 @@
                     util.dialog.notifyError(self, '加载失败');
                 })
             },
-            loadNics: function (nodeId) {
+            loadIfaces: function (nodeId) {
                 let self = this;
-                axios.get('/ship/node/nic?nodeId=' + nodeId).then((res) => {
-                    self.nics = res.data;
-                    self.route.nic_id = self.nics[0].id;
+                axios.get('/ship/node/iface?nodeId=' + nodeId).then((res) => {
+                    self.ifaces = res.data;
+                    self.route.iface_id = self.ifaces[0].id;
                 });
             },
             //选择内外端
@@ -157,7 +157,7 @@
                 let self = this;
                 self.nodeId = tab.name;
                 self.loadRoute(self.nodeId, 1);
-                self.loadNics(self.nodeId);
+                self.loadIfaces(self.nodeId);
             },
             //获取选择
             handleSelectionChange: function (val) {
@@ -255,7 +255,7 @@
             let self = this;
             self.$nextTick(function () {
                 self.loadRoute(1, 1);
-                self.loadNics(1);
+                self.loadIfaces(1);
             })
         },
     }
