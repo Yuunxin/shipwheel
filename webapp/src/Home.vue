@@ -1,10 +1,10 @@
 <template>
-    <div class="">
+    <div>
         <div class="nav-bar"><span class="nav-span">SHIPWHEEL</span></div>
         <div class="header-bar">
             <div class="ship-drop">
                 <el-dropdown trigger="click">
-                    <span class="el-dropdown-link ship-pointer"><img class="ship-img" src="./assets/ico-y.png">admin</span>
+                    <span class="el-dropdown-link ship-pointer"><img class="ship-img" src="./assets/ico-y.png">{{ user.name }}</span>
                     <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item @click.native="initModPwd"><i class="fa fa-pencil fa-fw"></i><span class="">密码修改</span></el-dropdown-item>
                         <el-dropdown-item divided @click.native="logout"><i class="fa fa-sign-out fa-fw"></i>安全退出</el-dropdown-item>
@@ -98,7 +98,7 @@
                 formVisible: false,
                 title: '',
                 user: {
-                    name: 'admin',
+                    name: '',
                     old_pwd: '',
                     new_pwd: '',
                     next_pwd: '',
@@ -120,10 +120,6 @@
                 let self = this;
                 self.formVisible = true;
                 self.title = '密码修改';
-                axios.get('/ship/user?name=admin').then((res) => {
-                    console.log(res.data);
-                    self.user.name = res.data.name;
-                });
                 self.$refs.user.resetFields();
             },
             editPwd: function () {
@@ -136,8 +132,14 @@
                             new_pwd: crypto_js.SHA256(self.user.new_pwd).toString(crypto_js.enc.Hex)
                         };
                         axios.put('/ship/user', data).then((res) => {
-                            util.dialog.notifySuccess(self, '修改成功');
-                            self.formVisible = false;
+                            if (res.data.flag === "0") {
+                                util.dialog.notifySuccess(self, res.data.msg);
+                                self.formVisible = false;
+                            } else if (res.data.flag === "1") {
+                                util.dialog.notifyError(self, res.data.msg);
+                            } else {
+                                util.dialog.notifyError(self, res.data.msg);
+                            }
                         }).catch((err) => {
                             util.dialog.notifyError(self, '修改失败');
                         })
@@ -145,8 +147,21 @@
                 })
             },
             logout: function () {
+                sessionStorage.removeItem('user');
                 this.$router.push({path: '/login'})
             }
+        },
+        mounted: function () {
+            let _this = this;
+            _this.$nextTick(() => {
+                let user = JSON.parse(sessionStorage.getItem("user"));
+                _this.user.name = user.name;
+            })
         }
     }
 </script>
+<style>
+    /*.el-input__inner {
+        width: 100%!important;
+    }*/
+</style>

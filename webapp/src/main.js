@@ -6,8 +6,6 @@ import App from './App.vue'
 import VueRouter from 'vue-router'
 import routes from './routes'
 import './css/ship.css'
-import './css/login.css'
-import 'bootstrap/dist/css/bootstrap.min.css'
 Vue.use(ElementUI);
 Vue.use(VueRouter);
 require("babel-polyfill");
