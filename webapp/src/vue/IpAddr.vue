@@ -191,9 +191,18 @@
                     if (valid) {
                         self.ipAddr.node_id = self.nodeId;
                         axios.post('/ship/node/ipAddr', self.ipAddr).then((res) => {
-                            util.dialog.notifySuccess(self, '添加成功');
-                            self.formVisible = false;
-                            self.loadIpAddr(self.nodeId, self.page.curPage);
+                            let data = res.data;
+                            if (data.flag === '0') {
+                                util.dialog.notifySuccess(self, data.msg);
+                                self.formVisible = false;
+                                self.loadIpAddr(self.nodeId, self.page.curPage);
+                            } else if (data.flag === '1') {
+                                util.dialog.notifyError(self, data.msg);
+                            } else if (data.flag === '2') {
+                                util.dialog.notifyError(self, data.msg);
+                            } else {
+                                util.dialog.notifyError(self, data.msg);
+                            }
                         }).catch((err) => {
                             util.dialog.notifyError(self, '添加失败');
                         })
@@ -205,9 +214,20 @@
                 self.$refs.ipAddr.validate((valid) => {
                     if (valid) {
                         axios.put('/ship/node/ipAddr', self.ipAddr).then((res) => {
-                            util.dialog.notifySuccess(self, '修改成功');
-                            self.formVisible = false;
-                            self.loadIpAddr(self.nodeId, self.page.curPage);
+                            let data = res.data;
+                            if (data.flag === '0') {
+                                util.dialog.notifySuccess(self, data.msg);
+                                self.formVisible = false;
+                                self.loadIpAddr(self.nodeId, self.page.curPage);
+                            } else if (data.flag === '1') {
+                                util.dialog.notifyError(self, data.msg);
+                            } else if (data.flag === '2') {
+                                util.dialog.notifyError(self, data.msg);
+                            } else if (data.flag === '3') {
+                                util.dialog.notifyError(self, data.msg);
+                            } else {
+                                util.dialog.notifyError(self, data.msg);
+                            }
                         }).catch((err) => {
                             util.dialog.notifyError(self, '修改失败');
                         })
@@ -227,8 +247,15 @@
                 }).then(() => {
                     _.forEach(self.selection, (s) => {
                         axios.delete('/ship/node/ipAddr?id=' + s.id).then((res) => {
-                            util.dialog.notifySuccess(self, '删除成功');
-                            self.loadIpAddr(self.nodeId, self.page.curPage);
+                            let data = res.data;
+                            if (data.flag === '0') {
+                                util.dialog.notifySuccess(self, data.msg);
+                                self.loadIpAddr(self.nodeId, self.page.curPage);
+                            } else if (data.flag === '1') {
+                                util.dialog.notifyError(self, data.msg);
+                            } else {
+                                util.dialog.notifyError(self, data.msg);
+                            }
                         }).catch((err) => {
                             util.dialog.notifyError(self, '删除失败');
                             self.loadIpAddr(self.nodeId, self.page.curPage);
