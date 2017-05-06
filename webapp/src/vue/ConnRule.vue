@@ -230,9 +230,14 @@
                 self.$refs.connRule.validate((valid) => {
                     if (valid) {
                         axios.post('/ship/node/connRule', self.connRule).then((res) => {
-                            util.dialog.notifySuccess(self, '添加成功');
-                            self.formVisible = false;
-                            self.loadConnRules(self.page.curPage);
+                            let data = res.data;
+                            if (data.flag === '0') {
+                                util.dialog.notifySuccess(self, data.msg);
+                                self.formVisible = false;
+                                self.loadConnRules(self.page.curPage);
+                            } else if (data.flag === '1') {
+                                util.dialog.notifyError(self, data.msg);
+                            }
                         }).catch((err) => {
                             util.dialog.notifyError(self, '添加失败');
                         })
@@ -244,9 +249,18 @@
                 self.$refs.connRule.validate((valid) => {
                     if (valid) {
                         axios.put('/ship/node/connRule', self.connRule).then((res) => {
-                            util.dialog.notifySuccess(self, '修改成功');
-                            self.formVisible = false;
-                            self.loadConnRules(self.page.curPage);
+                            let data = res.data;
+                            if (data.flag === '0') {
+                                util.dialog.notifySuccess(self, data.msg);
+                                self.formVisible = false;
+                                self.loadConnRules(self.page.curPage);
+                            } else if (data.flag === '1') {
+                                util.dialog.notifyError(self, data.msg);
+                            } else if (data.flag === '2') {
+                                util.dialog.notifyError(self, data.msg);
+                            } else if (data.flag === '3') {
+                                util.dialog.notifyError(self, data.msg);
+                            }
                         }).catch((err) => {
                             util.dialog.notifyError(self, '修改失败');
                         })
@@ -271,8 +285,17 @@
                 }).then(() => {
                     _.forEach(self.selection, (s) => {
                         axios.delete('/ship/node/connRule?id=' + s.id).then((res) => {
-                            util.dialog.notifySuccess(self, '删除成功');
-                            self.loadConnRules(self.page.curPage);
+                            let data = res.data;
+                            if (data.flag === '0') {
+                                util.dialog.notifySuccess(self, data.msg);
+                                self.loadConnRules(self.page.curPage);
+                            } else if (data.flag === '1') {
+                                util.dialog.notifyError(self, data.msg);
+                                self.loadConnRules(self.page.curPage);
+                            } else if (data.flag === '2') {
+                                util.dialog.notifyError(self, data.msg);
+                                self.loadConnRules(self.page.curPage);
+                            }
                         }).catch((err) => {
                             util.dialog.notifyError(self, '删除失败');
                             self.loadConnRules(self.page.curPage);

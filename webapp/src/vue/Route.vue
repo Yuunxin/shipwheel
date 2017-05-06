@@ -202,9 +202,16 @@
                     if (valid) {
                         self.route.node_id = self.nodeId;
                         axios.post('/ship/node/route', self.route).then((res) => {
-                            util.dialog.notifySuccess(self, '添加成功');
-                            self.formVisible = false;
-                            self.loadRoute(self.nodeId, self.page.curPage);
+                            let data = res.data;
+                            if (data.flag === '0') {
+                                util.dialog.notifySuccess(self, data.msg);
+                                self.formVisible = false;
+                                self.loadRoute(self.nodeId, self.page.curPage);
+                            } else if (data.flag === '1') {
+                                util.dialog.notifyError(self, data.msg);
+                            } else if (data.flag === '2') {
+                                util.dialog.notifyError(self, data.msg);
+                            }
                         }).catch((err) => {
                             util.dialog.notifyError(self, '添加失败');
                         })
@@ -216,9 +223,16 @@
                 self.$refs.route.validate((valid) => {
                     if (valid) {
                         axios.put('/ship/node/route', self.route).then((res) => {
-                            util.dialog.notifySuccess(self, '修改成功');
-                            self.formVisible = false;
-                            self.loadRoute(self.nodeId, self.page.curPage);
+                            let data = res.data;
+                            if (data.flag === '0') {
+                                util.dialog.notifySuccess(self, '修改成功');
+                                self.formVisible = false;
+                                self.loadRoute(self.nodeId, self.page.curPage);
+                            } else if (data.flag === '1') {
+                                util.dialog.notifyError(self, data.msg);
+                            } else {
+                                util.dialog.notifyError(self, data.msg);
+                            }
                         }).catch((err) => {
                             util.dialog.notifyError(self, '修改失败');
                         })
@@ -238,8 +252,14 @@
                 }).then(() => {
                     _.forEach(self.selection, (s) => {
                         axios.delete('/ship/node/route?id=' + s.id).then((res) => {
-                            util.dialog.notifySuccess(self, '删除成功');
-                            self.loadRoute(self.nodeId, self.page.curPage);
+                            let data = res.data;
+                            if (data.flag === '0') {
+                                util.dialog.notifySuccess(self, data.msg);
+                                self.loadRoute(self.nodeId, self.page.curPage);
+                            } else if (data.flag === '1') {
+                                util.dialog.notifyError(self, data.msg);
+                                self.loadRoute(self.nodeId, self.page.curPage);
+                            }
                         }).catch((err) => {
                             util.dialog.notifyError(self, '删除失败');
                             self.loadRoute(self.nodeId, self.page.curPage);

@@ -147,8 +147,13 @@
                 self.$refs.inside.validate((valid) => {
                     if (valid) {
                         axios.put('/ship/node/dns', {node_id: 1, dns: self.inside.insideDns}).then((res) => {
-                            util.dialog.notifySuccess(self, '修改成功');
-                            self.loadInsideDns();
+                            if (res.data.flag === '0') {
+                                util.dialog.notifySuccess(self, res.data.msg);
+                                self.loadInsideDns();
+                            } else {
+                                util.dialog.notifyError(self, res.data.msg);
+                                self.loadInsideDns();
+                            }
                         }).catch((err) => {
                             util.dialog.notifyError(self, '修改失败');
                             self.loadInsideDns();
@@ -161,8 +166,13 @@
                 self.$refs.outside.validate((valid) => {
                     if (valid) {
                         axios.put('/ship/node/dns', {node_id: 2, dns: self.outside.outsideDns}).then((res) => {
-                            util.dialog.notifySuccess(self, '修改成功');
-                            self.loadOutsideDns();
+                            if (res.data.flag === '0') {
+                                util.dialog.notifySuccess(self, res.data.msg);
+                                self.loadOutsideDns();
+                            } else {
+                                util.dialog.notifyError(self, res.data.msg);
+                                self.loadOutsideDns();
+                            }
                         }).catch((err) => {
                             util.dialog.notifyError(self, '修改失败');
                             self.loadOutsideDns();
