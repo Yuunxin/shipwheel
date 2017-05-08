@@ -28,8 +28,8 @@
                 <el-table :data="routeList" border tooltip-effect="dark" @selection-change="handleSelectionChange">
                     <el-table-column type="selection" width="55"></el-table-column>
                     <el-table-column prop="id" label="ID" width="100" sortable></el-table-column>
-                    <el-table-column prop="subnet" label="目的子网"></el-table-column>
-                    <el-table-column prop="mask" label="子网掩码"></el-table-column>
+                    <el-table-column prop="dst_net" label="目的子网"></el-table-column>
+                    <el-table-column prop="dst_mask" label="子网掩码"></el-table-column>
                     <el-table-column prop="gateway" label="网关"></el-table-column>
                     <el-table-column prop="ifaceName" label="网卡名称"></el-table-column>
                 </el-table>
@@ -47,11 +47,11 @@
         <el-dialog :title="editTitle" v-model="formVisible" :close-on-click-modal="false" size="tiny">
             <el-form label-width="100px" :model="route" :rules="editFormRules" ref="route">
                 <div :style="{display: showMod}">
-                    <el-form-item label="目的子网" prop="subnet">
-                        <el-input v-model="route.subnet" auto-complete="off" placeholder="请输入目的子网"></el-input>
+                    <el-form-item label="目的子网" prop="dst_net">
+                        <el-input v-model="route.dst_net" auto-complete="off" placeholder="请输入目的子网"></el-input>
                     </el-form-item>
-                    <el-form-item label="子网掩码" prop="mask">
-                        <el-input v-model="route.mask" auto-complete="off" placeholder="请输入子网掩码"></el-input>
+                    <el-form-item label="子网掩码" prop="dst_mask">
+                        <el-input v-model="route.dst_mask" auto-complete="off" placeholder="请输入子网掩码"></el-input>
                     </el-form-item>
                     <el-form-item label="网卡选择">
                         <el-select v-model="route.iface_id" placeholder="请选择网卡">
@@ -75,7 +75,7 @@
     import axios from 'axios';
     export default {
         data () {
-            let checkSubnet = (rule, value, callback) => {
+            let checkDstNet = (rule, value, callback) => {
                 if (!value)
                     callback(new Error("请输入目的子网"));
                 else if (!util.PATTERN.IP.test(value))
@@ -114,16 +114,16 @@
                 nodeId: '1',
                 editTitle: '',
                 route: {
-                    subnet: '',
-                    mask: '',
+                    dst_net: '',
+                    dst_mask: '',
                     gateway: '',
                     iface_id: 1
                 },
                 formVisible: false,
                 ifaces: [],
                 editFormRules: {
-                    subnet: [{validator: checkSubnet, trigger: 'blur'}],
-                    mask: [{validator: checkMask, trigger: 'blur'}],
+                    dst_net: [{validator: checkDstNet, trigger: 'blur'}],
+                    dst_mask: [{validator: checkMask, trigger: 'blur'}],
                     gateway: [{validator: checkGateway, trigger: 'blur'}]
                 },
                 selection: [],//checkbox select
